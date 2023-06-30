@@ -1,10 +1,11 @@
-const figlet = require('figlet');
+const fs = require('fs');
 
-figlet('Hello, Emre!', function(err, data) {
+const content = 'This is boring exercise 7.';
+
+fs.writeFile('output.txt', content, (err) => {
   if (err) {
-    console.log('Something wentwrong...');
-    console.dir(err);
+    console.error('An error occurred while writing the file:', err);
     return;
   }
-  console.log(data);
+  console.log('File successfully written!');
 });
