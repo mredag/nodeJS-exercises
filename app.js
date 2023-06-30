@@ -1,11 +1,41 @@
-const fs = require('fs');
-
-const content = 'This is boring exercise 7.';
-
-fs.writeFile('output.txt', content, (err) => {
-  if (err) {
-    console.error('An error occurred while writing the file:', err);
-    return;
+function luckyDraw(player) {
+    return new Promise((resolve, reject) => {
+      const win = Boolean(Math.round(Math.random()));
+  
+      process.nextTick(() => {
+        if (win) {
+          resolve(`${player} won a prize in the draw!`);
+        } else {
+          reject(new Error(`${player} lost the draw.`));
+        }
+      });
+    });
   }
-  console.log('File successfully written!');
-});
+  
+ 
+  luckyDraw('Emre')
+    .then((result) => {
+      console.log(result);
+    })
+    .catch((error) => {
+      console.error(error.message);
+    })
+    .then(() => {
+      return luckyDraw('Huseyin Omer');
+    })
+    .then((result) => {
+      console.log(result);
+    })
+    .catch((error) => {
+      console.error(error.message);
+    })
+    .then(() => {
+      return luckyDraw('Nuri');
+    })
+    .then((result) => {
+      console.log(result);
+    })
+    .catch((error) => {
+      console.error(error.message);
+    });
+  
