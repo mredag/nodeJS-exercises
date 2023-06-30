@@ -1,20 +1,34 @@
-import db from './config/db';
+import pgPromise from 'pg-promise';
+import dotenv from 'dotenv';
 
-const setupDb = async () => {
-    try {
-        await db.none(`
-            DROP TABLE IF EXISTS planets;
-            CREATE TABLE planets(
-                id SERIAL NOT NULL PRIMARY KEY,
-                name TEXT NOT NULL,
-                image TEXT
-            );
-        `);
+dotenv.config();
 
-        console.log('Database setup complete');
-    } catch (error) {
-        console.error('Error setting up the database:', error);
-    }
-};
+const pgp = pgPromise();
+const db = pgp({
+    host: 'localhost',
+    port: 5432,
+    database: 'your_db_name',
+    user: 'postgres',
+    password: 'your_password'
+});
 
-setupDb();
+const createUsersTable = `
+    DROP TABLE IF EXISTS users;
+
+    CREATE TABLE users (
+        id SERIAL NOT NULL PRIMARY KEY,
+        username TEXT NOT NULL,
+        password TEXT NOT NULL,
+        token TEXT
+    );
+`;
+
+db.none(createUsersTable)
+    .then(() => {
+        console.log('Users table created successfully.');
+        pgp.end();
+    })
+    .catch(error => {
+        console.error('Error creating users table:', error);
+        pgp.end();
+    });
