@@ -1,6 +1,4 @@
-function greet(name) {
+export default function greet(name) {
     console.log(`Hello, ${name}!`);
   }
-  
-  module.exports = greet;
   

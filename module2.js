@@ -1,4 +1,5 @@
-const greet = require('./module1');
+import greet from './module1.js';
+
 
 
 greet('Emre');
