@@ -2,67 +2,77 @@
 
 import { Request, Response } from 'express';
 import Joi from 'joi';
+import pgPromise from 'pg-promise';
 
-interface Planet {
-    id: number;
-    name: string;
-}
+const pgp = pgPromise();
 
-let planets: Planet[] = [
-    {
-        id: 1,
-        name: "Earth",
-    },
-    {
-        id: 2,
-        name: "Mars",
-    },
-];
+const connection = {
+    host: 'localhost',
+    port: 5432,
+    database: 'postgre',
+    user: 'emreDev',
+    password: '1234'
+  };
+
+const db = pgp(connection);
 
 const planetSchema = Joi.object({
-    name: Joi.string().min(3).required()
+  name: Joi.string().min(3).required()
 });
 
-export const getAll = (req: Request, res: Response) => {
+export const getAll = async (req: Request, res: Response) => {
+  try {
+    const planets = await db.any('SELECT * FROM planets');
     res.status(200).json(planets);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong!');
+  }
 };
 
-export const getOneById = (req: Request, res: Response) => {
-    const planet = planets.find(p => p.id === parseInt(req.params.id));
+export const getOneById = async (req: Request, res: Response) => {
+  try {
+    const planet = await db.oneOrNone('SELECT * FROM planets WHERE id=$1', [req.params.id]);
     if (!planet) return res.status(404).send('Planet not found');
     res.status(200).json(planet);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong!');
+  }
 };
 
-export const create = (req: Request, res: Response) => {
-    const { error } = planetSchema.validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+export const create = async (req: Request, res: Response) => {
+  const { error } = planetSchema.validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
-    const planet: Planet = {
-        id: planets.length + 1,
-        name: req.body.name
-    };
-    planets = [...planets, planet];
+  try {
+    await db.none('INSERT INTO planets (name) VALUES ($1)', [req.body.name]);
     res.status(201).json({ msg: 'Planet created successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong!');
+  }
 };
 
-export const updateById = (req: Request, res: Response) => {
-    const { error } = planetSchema.validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+export const updateById = async (req: Request, res: Response) => {
+  const { error } = planetSchema.validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
-    planets = planets.map(planet =>
-        planet.id === parseInt(req.params.id)
-            ? { ...planet, name: req.body.name }
-            : planet
-    );
-
+  try {
+    await db.none('UPDATE planets SET name=$2 WHERE id=$1', [req.params.id, req.body.name]);
     res.status(200).json({ msg: 'Planet updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong!');
+  }
 };
 
-export const deleteById = (req: Request, res: Response) => {
-    const initialLength = planets.length;
-    planets = planets.filter(planet => planet.id !== parseInt(req.params.id));
-
-    if (initialLength === planets.length) return res.status(404).send('Planet not found');
-
+export const deleteById = async (req: Request, res: Response) => {
+  try {
+    await db.none('DELETE FROM planets WHERE id=$1', [req.params.id]);
     res.status(200).json({ msg: 'Planet deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong!');
+  }
 };
