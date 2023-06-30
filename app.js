@@ -12,30 +12,28 @@ function luckyDraw(player) {
     });
   }
   
- 
-  luckyDraw('Emre')
-    .then((result) => {
-      console.log(result);
-    })
-    .catch((error) => {
+  async function getResults() {
+    try {
+      const result1 = await luckyDraw('Emre');
+      console.log(result1);
+    } catch (error) {
       console.error(error.message);
-    })
-    .then(() => {
-      return luckyDraw('Huseyin Omer');
-    })
-    .then((result) => {
-      console.log(result);
-    })
-    .catch((error) => {
+    }
+  
+    try {
+      const result2 = await luckyDraw('Huseyin Omer');
+      console.log(result2);
+    } catch (error) {
       console.error(error.message);
-    })
-    .then(() => {
-      return luckyDraw('Nuri');
-    })
-    .then((result) => {
-      console.log(result);
-    })
-    .catch((error) => {
+    }
+  
+    try {
+      const result3 = await luckyDraw('Doriana');
+      console.log(result3);
+    } catch (error) {
       console.error(error.message);
-    });
+    }
+  }
+  
+  getResults();
   
